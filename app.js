@@ -96,7 +96,7 @@ app.use((err, req, res, next) => {
 connectDb()
     .then(() => {
         httpServer.listen(8080, () => {
-            console.log("server running on http://localhost:8080");
+            console.log("server running...");
         });
     })
     .catch((err) => {
