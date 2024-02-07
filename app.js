@@ -27,10 +27,7 @@ app.set("eventEmitter", eventEmitter);
 
 app.use(
     cors({
-        origin: [
-            process.env.CLIENT_URL,
-            "https://rm5jqrls-5000.inc1.devtunnels.ms/",
-        ],
+        origin: [process.env.CLIENT_URL],
         credentials: true,
         methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type"],

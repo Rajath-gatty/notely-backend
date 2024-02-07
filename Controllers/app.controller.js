@@ -225,4 +225,8 @@ appController.postMessage = asyncHandler(async (req, res) => {
     res.status(201).send(new ApiResponse(201, "message created"));
 });
 
+appController.test = asyncHandler(async (req, res) => {
+    res.status(200).send("Server is working");
+});
+
 export default appController;
