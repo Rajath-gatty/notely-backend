@@ -31,6 +31,6 @@ router.post(
     appController.updatePageCoverImage
 );
 
-router.post("/test", appController.test);
+router.get("/test", appController.test);
 
 export default router;
