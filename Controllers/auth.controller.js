@@ -68,28 +68,10 @@ authController.login = asyncHandler(async (req, res) => {
         secure: true,
         httpOnly: true,
         sameSite: "none",
-        path: "/",
-        partitioned: true,
         maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
     };
     res.cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
-        .cookie("isLoggedIn", true, {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            partitioned: true,
-            maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-        })
-        .cookie("user", JSON.stringify(userRes), {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            partitioned: true,
-            maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-        })
         .send(new ApiResponse(200, userRes));
 });
 
@@ -137,28 +119,10 @@ authController.googleLogin = asyncHandler(async (req, res) => {
         secure: true,
         httpOnly: true,
         sameSite: "none",
-        path: "/",
-        partitioned: true,
         maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
     };
     res.cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
-        .cookie("isLoggedIn", true, {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            partitioned: true,
-            maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-        })
-        .cookie("user", JSON.stringify(userRes), {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            partitioned: true,
-            maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-        })
         .send(new ApiResponse(200, userRes));
 });
 
@@ -229,29 +193,11 @@ authController.generateRefreshToken = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        path: "/",
-        partitioned: true,
         maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
     };
     res.cookie("accessToken", newAccessToken, cookieOptions)
         .cookie("refreshToken", newRefreshToken, cookieOptions)
-        .cookie("isLoggedIn", true, {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            partitioned: true,
-            maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-        })
-        .cookie("user", JSON.stringify(userRes), {
-            maxAge: cookieOptions.maxAge,
-            httpOnly: false,
-            secure: true,
-            path: "/",
-            partitioned: true,
-            sameSite: "none",
-        })
-        .send(new ApiResponse(200, "AccessToken generated!"));
+        .send(new ApiResponse(200, userRes));
 });
 
 export default authController;
