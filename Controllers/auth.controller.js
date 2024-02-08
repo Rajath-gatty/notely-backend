@@ -73,11 +73,11 @@ authController.login = asyncHandler(async (req, res) => {
     res.cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
         .cookie("isLoggedIn", true, {
-            sameSite: "none",
+            httpOnly: false,
             maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
         })
         .cookie("user", JSON.stringify(userRes), {
-            sameSite: "none",
+            httpOnly: false,
             maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
         })
         .send(new ApiResponse(200, userRes));
@@ -132,11 +132,11 @@ authController.googleLogin = asyncHandler(async (req, res) => {
     res.cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
         .cookie("isLoggedIn", true, {
-            sameSite: "none",
+            httpOnly: false,
             maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
         })
         .cookie("user", JSON.stringify(userRes), {
-            sameSite: "none",
+            httpOnly: false,
             maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
         })
         .send(new ApiResponse(200, userRes));
@@ -214,12 +214,12 @@ authController.generateRefreshToken = asyncHandler(async (req, res) => {
     res.cookie("accessToken", newAccessToken, cookieOptions)
         .cookie("refreshToken", newRefreshToken, cookieOptions)
         .cookie("isLoggedIn", true, {
-            sameSite: "none",
+            httpOnly: false,
             maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
         })
         .cookie("user", JSON.stringify(userRes), {
             maxAge: cookieOptions.maxAge,
-            sameSite: "none",
+            httpOnly: false,
         })
         .send(new ApiResponse(200, "AccessToken generated!"));
 });
