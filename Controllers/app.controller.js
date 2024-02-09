@@ -203,6 +203,33 @@ appController.updatePageCoverImage = asyncHandler(async (req, res) => {
     );
 });
 
+appController.deletePageCover = asyncHandler(async (req, res) => {
+    const { boardId, pageId, imageUrl } = req.body;
+    if (!boardId || !pageId || !imageUrl)
+        throw new ApiError(400, "boardId or pageId is required");
+
+    const s3Delete = deleteFromS3(imageUrl, "images");
+    const deleteCover = Page.findByIdAndUpdate(
+        pageId,
+        {
+            $set: {
+                coverImage: "",
+            },
+        },
+        { new: true }
+    );
+    const [_, result] = await Promise.all([s3Delete, deleteCover]);
+
+    const emitter = req.app.get("eventEmitter");
+    emitter.emit("cover-update", {
+        coverImage: result.coverImage,
+        boardId,
+        pageId,
+    });
+
+    res.status(200).send(new ApiResponse(200, "Cover image removed"));
+});
+
 appController.getMessages = asyncHandler(async (req, res) => {
     const { boardId } = req.body;
     if (!boardId) throw new ApiError(400, "Board Id not found");
