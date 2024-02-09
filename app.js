@@ -39,27 +39,30 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/auth/", authRoute);
 app.use("/api/v1/app/", appRoute);
-
+let socketUsers = [];
 io.on("connection", (socket) => {
-    console.log("connected", socket.id);
-
     socket.on("join", async ({ boardId, userData }) => {
         socket.join(boardId);
-        socket.user = userData;
-        socket.user.socketId = socket.id;
-        const res = await io.in(boardId).fetchSockets();
-        const connectedUsers = res.map((i) => i.user);
+        const user = {
+            ...userData,
+            socketId: socket.id,
+        };
+        socketUsers.push(user);
+        const connectedUsers = socketUsers.filter(
+            (user) => user.roomId === boardId
+        );
         io.to(boardId).emit("connected-users", connectedUsers);
     });
     socket.on("cursor-move-update", (data) => {
         socket.broadcast.to(data.boardId).emit("cursor-move", data);
     });
-    socket.on("disconnect", async () => {
-        console.log("User disconnected");
-    });
+    // socket.on("disconnect", async () => {
+    //     console.log("User disconnected");
+    // });
     socket.on("disconnecting", async () => {
-        const roomId = Array.from(socket.rooms)[1];
-        socket.broadcast.to(roomId).emit("disconnected-user", socket.id);
+        const user = socketUsers.find((user) => user.socketId === socket.id);
+        socket.broadcast.to(user?.roomId).emit("disconnected-user", socket.id);
+        socketUsers = socketUsers.filter((user) => user.socketId !== socket.id);
     });
 });
 

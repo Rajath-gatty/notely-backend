@@ -30,6 +30,7 @@ router.post(
     upload.single("image"),
     appController.updatePageCoverImage
 );
+router.post("/page/delete-cover", isAuth, appController.deletePageCover);
 
 router.get("/test", appController.test);
 
