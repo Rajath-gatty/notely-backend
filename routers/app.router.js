@@ -15,6 +15,7 @@ router.post(
 );
 
 router.get("/boards", isAuth, appController.getBoards);
+router.post("/delete-board", isAuth, appController.deleteBoard);
 
 router.post("/create-page", isAuth, appController.createPage);
 router.post("/delete-page", isAuth, appController.deletePage);

@@ -68,6 +68,21 @@ appController.getBoards = asyncHandler(async (req, res) => {
     res.status(200).send(new ApiResponse(200, boards));
 });
 
+appController.deleteBoard = asyncHandler(async (req, res) => {
+    const { boardId, imageUrl } = req.body;
+    if (!boardId || !imageUrl) throw new ApiError(400, "No boardId found!");
+
+    const deleteBoard = Board.findByIdAndDelete(boardId);
+    if (imageUrl.includes("amazonaws")) {
+        const deleteImage = deleteFromS3(imageUrl, "images");
+        await Promise.all([deleteBoard, deleteImage]);
+    } else {
+        await deleteBoard;
+    }
+
+    res.status(200).send(new ApiResponse(200, "Board deleted"));
+});
+
 appController.createPage = asyncHandler(async (req, res) => {
     const { title, parentId, boardId } = req.body;
     const page = new Page({ title, parentId, boardId });
@@ -234,18 +249,23 @@ appController.getMessages = asyncHandler(async (req, res) => {
     const { boardId } = req.body;
     if (!boardId) throw new ApiError(400, "Board Id not found");
 
-    const messages = await Message.find({ boardId });
+    const messages = await Message.find({ boardId }).populate(
+        "sender",
+        "_id avatar name"
+    );
     res.status(200).send(new ApiResponse(200, messages));
 });
 
 appController.postMessage = asyncHandler(async (req, res) => {
-    const { boardId, message, senderName } = req.body;
-    const senderId = req.id;
+    const { boardId, message } = req.body;
+    const sender = req.id;
 
     if (!boardId) throw new ApiError(400, "Board Id not found");
 
-    const messages = new Message({ boardId, message, senderId, senderName });
-    await messages.save();
+    const messages = new Message({ boardId, message, sender });
+    await messages
+        .save()
+        .then((msg) => msg.populate("sender", "_id avatar name"));
     const emitter = req.app.get("eventEmitter");
     emitter.emit("message", messages);
 

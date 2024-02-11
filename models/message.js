@@ -4,14 +4,11 @@ const messageModel = new Schema(
     {
         boardId: {
             type: mongoose.Types.ObjectId,
-            ref: "board",
+            ref: "Board",
         },
-        senderId: {
+        sender: {
             type: mongoose.Types.ObjectId,
-            required: true,
-        },
-        senderName: {
-            type: String,
+            ref: "User",
             required: true,
         },
         message: {

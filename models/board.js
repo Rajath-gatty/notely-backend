@@ -13,7 +13,7 @@ const board = new Schema(
         },
         userId: {
             type: mongoose.Types.ObjectId,
-            ref: "user",
+            ref: "User",
         },
         boardType: {
             type: String,
