@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config.js";
 import express from "express";
 import connectDb from "./database/db.js";
 import cookieParser from "cookie-parser";
@@ -11,6 +10,7 @@ import event from "node:events";
 import authRoute from "./routers/auth.router.js";
 import appRoute from "./routers/app.router.js";
 import { ApiError } from "./utils/ApiError.js";
+import appController from "./Controllers/app.controller.js";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -27,18 +27,27 @@ app.set("eventEmitter", eventEmitter);
 
 app.use(
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: [process.env.CLIENT_URL, "https://api.stripe.com"],
         credentials: true,
         methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type"],
     })
 );
+
 app.use(cookieParser());
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.post(
+    "/stripe-webhook",
+    express.raw({ type: "application/json" }),
+    appController.handleStripeWebhooks
+);
+
+app.use(express.json());
 
 app.use("/api/v1/auth/", authRoute);
 app.use("/api/v1/app/", appRoute);
+
 let socketUsers = [];
 io.on("connection", (socket) => {
     socket.on("join", async ({ boardId, userData }) => {
@@ -56,9 +65,7 @@ io.on("connection", (socket) => {
     socket.on("cursor-move-update", (data) => {
         socket.broadcast.to(data.boardId).emit("cursor-move", data);
     });
-    // socket.on("disconnect", async () => {
-    //     console.log("User disconnected");
-    // });
+
     socket.on("disconnecting", async () => {
         const user = socketUsers.find((user) => user.socketId === socket.id);
         socket.broadcast.to(user?.roomId).emit("disconnected-user", socket.id);

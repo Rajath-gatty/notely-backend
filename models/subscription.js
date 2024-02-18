@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const subscription = new Schema({
     userId: {
         type: mongoose.Types.ObjectId,
-        ref: "user",
+        ref: "User",
         required: true,
     },
     startDate: Date,
@@ -12,13 +12,29 @@ const subscription = new Schema({
         type: Boolean,
         required: true,
     },
-    invoiceIds: [
-        {
-            type: String,
-            ref: "invoice",
-        },
-    ],
-    count: Number,
+    product: {
+        type: String,
+        required: true,
+    },
+    productId: {
+        type: String,
+        required: true,
+    },
+    amount: {
+        type: Number,
+        required: true,
+    },
+    paymentMethod: {
+        type: String,
+        required: true,
+    },
+    invoiceUrl: {
+        type: String,
+    },
+    subscriptionId: {
+        type: String,
+        required: true,
+    },
 });
 
 export const Subscription = mongoose.model("Subscriptions", subscription);

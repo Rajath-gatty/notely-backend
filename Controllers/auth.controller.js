@@ -48,6 +48,9 @@ authController.login = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) throw new ApiError(400, "No user found with this email");
 
+    if (user.authClient !== "self")
+        throw new ApiError(400, "Login using google to continue");
+
     const isPassCorrect = await bcrypt.compare(password, user.password);
     if (!isPassCorrect) throw new ApiError(400, "Password is Incorrect");
 

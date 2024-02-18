@@ -20,6 +20,11 @@ const board = new Schema(
             enum: ["personal", "collaborative"],
             required: true,
         },
+        lastViewed: {
+            type: Date,
+            required: true,
+            default: new Date().toISOString(),
+        },
     },
     {
         timestamps: {

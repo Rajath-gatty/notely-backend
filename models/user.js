@@ -34,13 +34,16 @@ const user = new Schema(
         },
         plan: {
             type: String,
-            enum: ["personal", "team"],
+            enum: ["free", "pro"],
             required: true,
-            default: "personal",
+            default: "free",
         },
         assignedColor: {
             type: String,
             required: true,
+        },
+        stripeCustomerId: {
+            type: String,
         },
         refreshToken: [
             {
