@@ -177,6 +177,7 @@ appController.getPage = asyncHandler(async (req, res) => {
     const isValidId = mongoose.isValidObjectId(pageId);
     if (!isValidId) throw new ApiError(400, "Enter valid page Id");
     const page = await Page.findById(pageId);
+    if (!page) throw new ApiError(400, "No page found");
     res.status(200).send(new ApiResponse(200, page));
 });
 
