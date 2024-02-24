@@ -130,13 +130,14 @@ appController.getPages = asyncHandler(async (req, res) => {
 });
 
 appController.deletePage = asyncHandler(async (req, res) => {
-    const { pageId, childIds = [], boardId } = req.body;
+    const { pageId, parentId, childIds = [], boardId } = req.body;
     if (!pageId) throw new ApiError(400, "No page ID found");
 
     const deleteChildPages = async (childIds = []) => {
-        if (!childIds.length > 0) return;
+        if (!childIds?.length > 0) return;
         const promise = childIds.map(async (childId) => {
             const childPages = await Page.findById(childId);
+            if (!childPages) return;
             deleteChildPages(childPages.childIds);
             let deleteImagePromise;
             if (childPages.coverImage) {
@@ -147,12 +148,16 @@ appController.deletePage = asyncHandler(async (req, res) => {
             } else {
                 deleteImagePromise = Promise.resolve();
             }
+            if (parentId) {
+                await Page.findByIdAndUpdate(parentId, {
+                    $pull: { childIds: pageId },
+                });
+            }
             const deletePagePromise = Page.findByIdAndDelete(childId);
             return await Promise.all([deleteImagePromise, deletePagePromise]);
         });
         return Promise.all(promise);
     };
-
     await deleteChildPages(childIds);
     const { coverImage } = await Page.findById(pageId);
     let pageCoverPromise;
@@ -169,6 +174,8 @@ appController.deletePage = asyncHandler(async (req, res) => {
 appController.getPage = asyncHandler(async (req, res) => {
     const { pageId } = req.body;
     if (!pageId) throw new ApiError(400, "No pageId found");
+    const isValidId = mongoose.isValidObjectId(pageId);
+    if (!isValidId) throw new ApiError(400, "Enter valid page Id");
     const page = await Page.findById(pageId);
     res.status(200).send(new ApiResponse(200, page));
 });
@@ -195,14 +202,19 @@ appController.updatePageContent = asyncHandler(async (req, res) => {
 appController.updatePageTitle = asyncHandler(async (req, res) => {
     let { title, pageId } = req.body;
     if (!pageId) throw new ApiError(400, "No pageId found");
+    const isValidId = mongoose.isValidObjectId(pageId);
+    if (!isValidId) throw new ApiError(400, "Enter valid page Id");
     if (title === "") title = "Untitled";
-    const { boardId, title: newTitle } = await Page.findByIdAndUpdate(
+    const result = await Page.findByIdAndUpdate(
         { _id: pageId },
         { $set: { title } },
         { new: true }
     );
+    if (!result) throw new ApiError(400, "No page found");
+    const { boardId, title: newTitle } = result;
     const emitter = req.app.get("eventEmitter");
     emitter.emit("title-update", {
+        userId: req.id,
         pageId,
         boardId,
         title: newTitle,
